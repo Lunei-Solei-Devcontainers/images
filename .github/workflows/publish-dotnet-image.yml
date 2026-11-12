@@ -1,0 +1,29 @@
+name: Build .NET Devcontainer Image
+
+on:
+  push:
+    branches: [main]
+    paths: ["src/dotnet/**"]
+  workflow_dispatch: { }
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: devcontainers/ci@v3
+        with:
+          configFile: "src/dotnet/devcontainer.json"
+          imageName: "ghcr.io/lunei-solei-devcontainers/dotnet"
+          imageTag: latest,1.0
+          push: always
