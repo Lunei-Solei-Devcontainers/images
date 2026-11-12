@@ -1,0 +1,18 @@
+{
+    "initializeCommand": "sh .devcontainer/export-gpg-keys.sh ${localWorkspaceFolder}",
+    "postCreateCommand": "sh .devcontainer/post-create-command.sh ${localWorkspaceFolder}",
+    "remoteUser": "vscode",
+    "updateRemoteUserUID": true,
+    "customizations": {
+        "jetbrains": {
+            "settings": {
+                "com.intellij:app:Vcs-Log-App-Settings.show_changes_from_parents": true,
+                "com.intellij:app:HttpConfigurable.use_proxy_pac": true,
+                "JavaScript:app:JSEditorOptions.automatically_replace_with_template_string_on_typing": false,
+                "JavaScript:app:JSEditorOptions.escape_pasted_text": false,
+                "JavaScript:app:JSEditorOptions.close_html_single_tags": false,
+                "JavaScript:app:JSEditorOptions.escape_doc_on_copy_paste": false
+            }
+        }
+    }
+}
