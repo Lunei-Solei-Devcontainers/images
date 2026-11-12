@@ -21,7 +21,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: devcontainers/ci@v3
+      - uses: devcontainers/ci@v0.3
         with:
           configFile: "src/dotnet/devcontainer.json"
           imageName: "ghcr.io/lunei-solei-devcontainers/dotnet"
