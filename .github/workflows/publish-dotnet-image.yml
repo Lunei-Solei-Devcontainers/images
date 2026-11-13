@@ -23,7 +23,7 @@ jobs:
 
       - uses: devcontainers/ci@v0.3
         with:
-          configFile: "src/dotnet/devcontainer.json"
+          configFile: "src/dotnet/.devcontainer/devcontainer.json"
           imageName: "ghcr.io/lunei-solei-devcontainers/dotnet"
           imageTag: latest,1.0
           push: always
