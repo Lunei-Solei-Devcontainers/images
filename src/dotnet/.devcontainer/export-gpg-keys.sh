@@ -41,6 +41,7 @@ cleanup_outputs() {
 declare -a FINGERPRINTS=()
 declare -a SHORT_IDS=()
 declare -a UIDS=()
+declare -a KEYS_TO_EXPORT=()
 
 current_fpr=""
 current_uid=""
@@ -103,7 +104,7 @@ echo "=================================="
 echo ""
 echo "Keys available on host:"
 echo ""
-for i in "${FINGERPRINTS[@]}"; do
+for i in "${!FINGERPRINTS[@]}"; do
     printf "    %d %s %s\n" $((i + 1)) "${SHORT_IDS[$1]}" "${UIDS[$i]}"
 done
 
