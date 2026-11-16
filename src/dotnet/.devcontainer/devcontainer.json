@@ -2,7 +2,6 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
-    "postCreateCommand": "dotnet restore",
     "remoteUser": "devcontainer",
     "updateRemoteUserUID": true,
     "customizations": {
