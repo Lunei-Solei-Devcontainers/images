@@ -1,0 +1,35 @@
+name: BubblesBot GH Fast-Forward
+
+on:
+  pull_request:
+    types:
+      - opened
+  issue_comment:
+    types:
+      - created
+      - edited
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+  issues: write
+  
+jobs:
+  fast-forward:
+    if: github.event.comment.user.login != 'bubbles-bot-gh'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          
+      - name: Fast-Forward
+        uses: bubbles-bot-gh/fast-forward@v1
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          auto_merge: true
+          post_comment: always
+          custom_command: /fast-forward
