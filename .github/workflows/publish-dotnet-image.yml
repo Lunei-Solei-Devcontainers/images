@@ -25,5 +25,5 @@ jobs:
         with:
           configFile: "src/dotnet/.devcontainer/devcontainer.json"
           imageName: "ghcr.io/lunei-solei-devcontainers/dotnet"
-          imageTag: latest,1.0
+          imageTag: latest,1.0.0
           push: always
