@@ -26,7 +26,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           
       - name: Fast-Forward
-        uses: bubbles-bot-gh/fast-forward@v1
+        uses: bubbles-bot-gh/fast-forward@v0.1.0-beta
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
