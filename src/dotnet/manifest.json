@@ -1,0 +1,15 @@
+{
+    "version": "1.0.0",
+    "variants": [
+        "11.0-resolute"
+    ],
+    "build": {
+        "latest": "11.0-resolute",
+        "architectures": {
+            "11.0-resolute": [
+                "linux/amd64",
+                "linux/arm64"
+            ]
+        }
+    }
+}

@@ -1,4 +1,4 @@
-ARG VARIANT=10.0-resolute
+ARG VARIANT=11.0-resolute
 ARG REMOTE_USER=devcontainer
 FROM mcr.microsoft.com/dotnet/sdk:${VARIANT}
 

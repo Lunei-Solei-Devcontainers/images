@@ -1,0 +1,92 @@
+name: Publish Images
+
+on:
+  push:
+    tags:
+      - v*
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Discover Images
+    if: ${{ github.event.base_ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build matrix from manifests
+        id: matrix
+        run: |
+          set -euo pipefail
+          matrix=$(bash .github/scripts/build-tag-matrix.sh src)
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "$matrix" | jq .
+
+  build-and-push:
+    name: ${{ matrix.image }} ${{ matrix.variant }}
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    env:
+      IMAGE: ${{ matrix.image }}
+      CONTEXT: ${{ matrix.context }}
+      VARIANT: ${{ matrix.variant }}
+      TAGS: ${{ matrix.tags }}
+      PRIMARY_TAG: ${{ matrix.primary }}
+      PLATFORMS: ${{ matrix.platforms }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set Registry
+        run: echo "REGISTRY=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log In to Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check If Already Published
+        id: exists
+        run: |
+          if docker buildx imagetools inspect "$REGISTRY/$IMAGE:$PRIMARY_TAG" >/dev/null 2>&1; then
+            echo "$REGISTRY/$IMAGE:$PRIMARY_TAG already exists, skipping."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Devcontainers CLI
+        if: steps.exists.outputs.exists != 'true'
+        run: npm install -g @devcontainers/cli
+
+      - name: Build and Push
+        if: steps.exists.outputs.exists != 'true'
+        run: |
+          set -euo pipefail
+          args=()
+          for tag in $TAGS; do
+            args+=(--image-name "$REGISTRY/$IMAGE:$tag")
+          done
+          echo "Tags: $TAGS"
+
+          # Variant is read by devcontainer.json via ${localEnv:VARIANT}
+          export VARIANT
+          devcontainer build \
+            --workspace-folder "$CONTEXT" \
+            --platform "$PLATFORMS" \
+            --push \
+            "${args[@]}"
