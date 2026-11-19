@@ -20,3 +20,6 @@ RUN if [ "${VARIANT#*noble}" != "$VARIANT" ] || [ "${VARIANT#*resolute}" != "$VA
 
 # Unset this so NuGet can extract XML documentation from packages for IntelliSense
 ENV NUGET_XML_DOC_MODE=
+
+# Set the default username
+USER ${REMOTE_USER}

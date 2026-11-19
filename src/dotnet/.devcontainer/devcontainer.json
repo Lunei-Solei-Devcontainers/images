@@ -2,7 +2,6 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
-    "remoteUser": "devcontainer",
     "updateRemoteUserUID": true,
     "customizations": {
         "jetbrains": {
