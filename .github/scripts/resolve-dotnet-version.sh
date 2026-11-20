@@ -29,7 +29,7 @@ fi
 # These values are interpolated into a shell snippet by the workflow, and two of them
 # come from the network. Refuse anything that does not look like a version.
 for value in "$sdk" "$runtime"; do
-  if [-n "$value" ] && ! [[ "$value" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+  if [ -n "$value" ] && ! [[ "$value" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
     echo "Unexpected version '$value' for .NET '$dotnet'." >&2
     exit 1
   fi
