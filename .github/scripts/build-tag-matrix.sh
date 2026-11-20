@@ -17,7 +17,7 @@ for manifest in "${manifests[@]}"; do
     dir=$(dirname "$manifest")
     jq -c --arg dir "$dir" --arg name "$(basename "$dir")" '
         def ident($what; $v):
-            if ($v | type) == "string" and ($v | test("test("^[A-Za-z0-9][A-Za-z0-9._-]*$"))
+            if ($v | type) == "string" and ($v | test("^[A-Za-z0-9][A-Za-z0-9._-]*$"))
                 then $v
             else error("\($dir): \($what) must be a non-empty string of letters, digits, dots, underscores, or hyphens.")
             end;
