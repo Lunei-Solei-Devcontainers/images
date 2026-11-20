@@ -37,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           matrix=$(bash .github/scripts/build-tag-matrix.sh src)
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "image-matrix=$matrix" >> "$GITHUB_OUTPUT"
           echo "$matrix" | jq .
 
   test:
