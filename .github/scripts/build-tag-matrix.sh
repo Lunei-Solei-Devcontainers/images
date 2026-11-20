@@ -38,7 +38,7 @@ for manifest in "${manifests[@]}"; do
                 else . end
                 | ident("variant ubuntu"; .ubuntu) as $ubuntu
                 | ident("variant dotnet"; .dotnet) as $dotnet
-                | ident(variant name"; (.name // "\($dotnet)-\($ubuntu)")) as $vname
+                | ident("variant name"; (.name // "\($dotnet)-\($ubuntu)")) as $vname
                 | { name: $vname, ubuntu: $ubuntu, dotnet: $dotnet }
             )
         ) as $variants
