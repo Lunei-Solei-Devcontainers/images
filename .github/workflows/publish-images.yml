@@ -3,15 +3,19 @@ name: Publish Images
 on:
   push:
     branches: [main]
-    tags: [v*]
+    paths: src/*/manifest.json
+  workflow_dispatch: { }
 
 permissions:
   contents: read
 
+concurrency:
+  group: publish-images
+  cancel-in-progress: false
+
 jobs:
   prepare:
     name: Discover Images
-    if: ${{ github.event.base_ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.matrix.outputs.matrix }}
