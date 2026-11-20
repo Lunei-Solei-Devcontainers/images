@@ -1,6 +1,9 @@
 {
     "build": {
-        "dockerfile": "Dockerfile"
+        "dockerfile": "Dockerfile",
+        "args": {
+            "UBUNTU": "${localEnv:UBUNTU:latest}"
+        }
     },
     "updateRemoteUserUID": true,
     "customizations": {
@@ -17,7 +20,7 @@
     },
     "features": {
         "ghcr.io/devcontainers/features/dotnet:2": {
-            "version": "${VARIANT}"
+            "version": "${localEnv:DOTNET:latest}"
         },
         "ghcr.io/devcontainers/features/git:1": {},
         "ghcr.io/devcontainers/features/common-utils:1": {
