@@ -24,7 +24,7 @@ for manifest in "${manifests[@]}"; do
 
         .version as $version
         | if ($version | type) != "string"
-            or ($version | test(""^[0-9]+\\.[0-9]+\\.[0-9]+$") | not)
+            or ($version | test("^[0-9]+\\.[0-9]+\\.[0-9]+$") | not)
         then error("\($dir): version must look like MAJOR.MINOR.PATCH")
         else . end
         | . as $m
