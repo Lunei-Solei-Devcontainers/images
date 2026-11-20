@@ -16,13 +16,16 @@
         }
     },
     "features": {
+        "ghcr.io/devcontainers/features/dotnet:2": {
+            "version": "${VARIANT}"
+        },
         "ghcr.io/devcontainers/features/git:1": {},
         "ghcr.io/devcontainers/features/common-utils:1": {
-        "installZsh": false,
-        "installOhMyZsh": false,
-        "installOhMyZshConfig": false,
-        "username": "${REMOTE_USER}",
-        "upgradePackages": true
+            "installZsh": false,
+            "installOhMyZsh": false,
+            "installOhMyZshConfig": false,
+            "username": "devcontainer",
+            "upgradePackages": true
         }
     }
 }
