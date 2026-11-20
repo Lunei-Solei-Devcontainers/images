@@ -6,8 +6,7 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu
 ARG VARIANT
 ARG REMOTE_USER
 
-ENV PATH $PATH:/home/${REMOTE_USER}/.dotnet:/home/${REMOTE_USER}/.dotnet/tools
-RUN chmod -R a+w /usr/share/dotnet
+ENV PATH=$PATH:/home/${REMOTE_USER}/.dotnet:/home/${REMOTE_USER}/.dotnet/tools
 
 # Remove ubuntu user
 RUN if id "ubuntu" &>/dev/null; then \
