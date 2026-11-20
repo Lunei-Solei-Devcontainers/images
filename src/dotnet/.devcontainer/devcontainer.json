@@ -5,6 +5,7 @@
             "UBUNTU": "${localEnv:UBUNTU:latest}"
         }
     },
+    "remoteUser": "devcontainer",
     "updateRemoteUserUID": true,
     "customizations": {
         "jetbrains": {
