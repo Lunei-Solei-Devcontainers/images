@@ -1,0 +1,123 @@
+name: Test Dotnet Images
+
+# Builds every .NET image variant listed in 'src/dotnet/manifest.json' and 
+# smoke-tests the result. CI always passes explicit UBUNTU and DOTNET values 
+# from the manifest, so the "latest" fallbacks in devcontainer.json never apply here.
+
+on:
+  pull_request:
+    branches: [main]
+    paths: 
+    - src/dotnet/**
+    - .github/scripts/**
+    - .github/workflows/dotnet-test.yml
+  workflow_dispatch: { }
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dotnet-test-images-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-image-matrix:
+    name: Build Image Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      image-matrix: ${{ steps.build-matrix.outputs.image-matrix }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Lint scripts
+        run: shellcheck .github/scripts/*.sh
+
+      - name: Build Matrix From Manifest
+        id: build-matrix
+        run: |
+          set -euo pipefail
+          matrix=$(bash .github/scripts/build-tag-matrix.sh src)
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+          echo "$matrix" | jq .
+
+  test:
+    name: ${{ matrix.image }} ${{ matrix.variant }}
+    needs: build-image-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.build-image-matrix.outputs.image-matrix) }}
+    env:
+      UBUNTU: ${{ matrix.ubuntu }}
+      DOTNET: ${{ matrix.dotnet }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Resolve Expected .NET Version
+        id: expected
+        run: bash .github/scripts/resolve-dotnet-version.sh "$DOTNET" >> "$GITHUB_OUTPUT"
+
+      - uses: devcontainers/ci@v0.3
+        with:
+          subFolder: ${{ matrix.context }}
+          push: never
+          runCmd: |
+            set -eu
+            export DOTNET_NOLOGO=1 DOTNET_CLI_TELEMETRY_OPTOUT=1
+            ubuntu='${{ matrix.ubuntu }}'
+            dotnet_version='${{ matrix.dotnet }}'
+            expected_sdk='${{ steps.expected.outputs.sdk }}
+            expected_runtime='${{ steps.expected.outputs.runtime }}'
+
+            # Ubuntu base matches variant. Symbolic values are skipped.
+            . /etc/os-release
+            case "$ubuntu" in
+              latest|rolling) echo "Skipping Ubuntu check for '$ubuntu'" ;;
+              *)
+                if [ "$VERSION_CODENAME" != "$ubuntu" ] && [ "$VERSION_ID" != "$ubuntu" ]; then
+                  echo "Expected Ubuntu '$ubuntu', but got '$VERSION_CODENAME' ($VERSION_ID) instead." >&2
+                  exit 1
+                fi
+                ;;
+            esac
+
+            # .NET feature installed correct MAJOR version
+            actual_sdk=$(dotnet --version)
+            echo "dotnet SDK $actual_sdk"
+            case "$dotnet_version" in
+              latest|lts) echo "Skipping .NET major version check for '$dotnet_version'" ;;
+              *)
+                if [ "${actual_sdk%%.*}" != "${dotnet_version%%.*}" ]; then
+                  echo "Expected .NET ${dotnet_version%%.*}.x, but got $actual_sdk instead." >&2
+                  exit 1
+                fi
+                ;;
+              esac
+              
+            # .NET feature installed correct PATCH version
+            if [ -n "$expected_sdk" ] && [ "$actual_sdk" != "$expected_sdk" ]; then
+              echo "Expected .NET SDK $expected_sdk, but got $actual_sdk instead." >&2
+              exit 1
+            fi
+            if [ -n "$expected_runtime" ] \
+              && ! dotnet --list-runtimes | grep -qF "Microsoft.NETCore.App $expected_runtime "; then
+              echo "Expected Microsoft.NETCore.App $expected_runtime, but found:" >&2
+              dotnet --list-runtimes >&2
+              exit 1
+            fi
+            if [ -z "$expected_sdk" ]; then
+              echo "No independent patch version for '$dotnet_version'; patch check skipped."
+            fi
+
+            # Remote user is 'devcontainer', and default 'ubuntu' user is removed
+            test "$(id -un)" = devcontainer
+            ! id ubuntu >/dev/null 2>&1
+
+            # Tooling and environment expected by consumers
+            git --version
+            echo "$PATH" | grep -q '\.dotnet/tools'
+            test -w "$HOME"
+
+            # NuGet restore, build, and write permissions all work
+            dotnet new console -o /tmp/ci-smoke
+            dotnet build /tmp/ci-smoke
