@@ -66,7 +66,7 @@ jobs:
             export DOTNET_NOLOGO=1 DOTNET_CLI_TELEMETRY_OPTOUT=1
             ubuntu='${{ matrix.ubuntu }}'
             dotnet_version='${{ matrix.dotnet }}'
-            expected_sdk='${{ steps.expected.outputs.sdk }}
+            expected_sdk='${{ steps.expected.outputs.sdk }}'
             expected_runtime='${{ steps.expected.outputs.runtime }}'
 
             # Ubuntu base matches variant. Symbolic values are skipped.
